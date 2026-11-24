@@ -16,7 +16,7 @@
         <h1>Sign in to your relay</h1>
         <p class="muted">Use your existing Relay account.</p>
         <form id="login-form">
-          <label for="username">Username</label>
+          <label for="username">Email</label>
           <input id="username" name="username" autocomplete="username" required placeholder="name@example.com">
           <label for="password">Password</label>
           <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Password">
@@ -25,7 +25,7 @@
         </form>
         <button id="preview-button" class="preview-link" type="button">Preview radio interface</button>
       </div>
-      <p class="login-note">Relay connection is being integrated. Preview mode does not transmit audio.</p>
+      <p class="login-note">Your existing Sanket Relay account is used to sign in.</p>
     </section>
 
     <section id="radio-view" class="radio-view hidden">
@@ -61,7 +61,7 @@
         </div>
         <div class="ptt-stage">
           <div class="signal-ring ring-one"></div><div class="signal-ring ring-two"></div>
-          <button id="ptt-button" class="ptt-button" type="button" aria-label="Push to talk" title="Audio transport will be enabled after relay protocol verification">
+          <button id="ptt-button" class="ptt-button" type="button" aria-label="Push to talk" title="Hold to talk">
             <span class="satellite">✦</span><span class="ptt-letter">S</span>
           </button>
         </div>
