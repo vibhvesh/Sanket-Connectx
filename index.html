@@ -3,52 +3,82 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#101820">
+  <meta name="theme-color" content="#0b3f91">
   <title>Sanket PTT</title>
   <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
   <main class="shell">
-    <header class="topbar">
+    <section id="login-view" class="login-wrap">
       <div class="brand"><span class="brand-mark">S</span><div><strong>SANKET PTT</strong><small>Browser radio client</small></div></div>
-      <span id="connection-state" class="status"><i></i> NOT CONNECTED</span>
-    </header>
-
-    <section id="login-view" class="panel login-panel">
-      <p class="eyebrow">SECURE RELAY ACCESS</p>
-      <h1>Sign in to your relay</h1>
-      <p class="muted">Use your relay account to view public and assigned channels.</p>
-      <form id="login-form">
-        <label for="username">Username</label>
-        <input id="username" name="username" autocomplete="username" required placeholder="name@example.com">
-        <label for="password">Password</label>
-        <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Password">
-        <button class="primary full" type="submit">Connect to relay</button>
-        <p id="login-error" class="error" role="alert"></p>
-      </form>
-    </section>
-
-    <section id="console-view" class="hidden">
-      <div class="welcome-row"><div><p class="eyebrow">RELAY CONSOLE</p><h1>Your channels</h1></div><button id="logout-button" class="secondary">Sign out</button></div>
-      <div class="console-grid">
-        <section class="panel">
-          <div class="section-heading"><h2>Available lines</h2><button id="refresh-channels" class="text-button">Refresh</button></div>
-          <div id="channel-list" class="channel-list"><p class="muted">Sign in to load channels.</p></div>
-        </section>
-        <section class="panel radio-panel">
-          <p class="eyebrow">SELECTED CHANNEL</p>
-          <h2 id="selected-channel">No channel selected</h2>
-          <p id="ptt-hint" class="muted">Choose a channel to continue.</p>
-          <button id="ptt-button" class="ptt-button" disabled><span>PTT</span><small>PRESS &amp; HOLD</small></button>
-          <p id="ptt-state" class="muted" aria-live="polite">Standby</p>
-        </section>
-        <section class="panel history-panel">
-          <div class="section-heading"><h2>Session audio</h2><span class="muted tiny">Cleared on sign out</span></div>
-          <div id="audio-history"><p class="muted">No transmissions in this session.</p></div>
-        </section>
+      <div class="login-card">
+        <p class="eyebrow">SECURE RELAY ACCESS</p>
+        <h1>Sign in to your relay</h1>
+        <p class="muted">Use your existing Relay account.</p>
+        <form id="login-form">
+          <label for="username">Username</label>
+          <input id="username" name="username" autocomplete="username" required placeholder="name@example.com">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Password">
+          <button class="primary full" type="submit">Connect to relay</button>
+          <p id="login-error" class="error" role="alert"></p>
+        </form>
+        <button id="preview-button" class="preview-link" type="button">Preview radio interface</button>
       </div>
+      <p class="login-note">Relay connection is being integrated. Preview mode does not transmit audio.</p>
     </section>
-    <footer>Relay recordings remain on the relay. This browser keeps only temporary session playback.</footer>
+
+    <section id="radio-view" class="radio-view hidden">
+      <header class="radio-topbar">
+        <div><strong id="top-channel-name">VIRTUAL</strong><small id="top-channel-id">RM-FG7S</small></div>
+        <span class="live-dot" title="Connection status"></span>
+        <div class="account"><span class="avatar">A</span><span id="account-name">apple</span></div>
+        <button id="leave-button" class="leave-button" type="button">↪ <span>Leave</span></button>
+      </header>
+
+      <section class="activity-card">
+        <div class="activity-heading"><h2>▥ &nbsp;Transmission Activity</h2><span class="live-pill"><i></i> Live</span></div>
+        <select id="activity-range" aria-label="Activity date range"><option>Today</option><option>Last 7 days</option><option>All activity</option></select>
+        <div id="activity-list" class="activity-list">
+          <article class="transmission">
+            <div class="transmission-meta"><span class="radio-icon">◉</span><div><strong>admin</strong><small>11/24/2026, 6:51:52 PM · 4.0 s</small></div></div>
+            <p>Recording saved. No transcript was captured for this transmission.</p>
+            <div class="audio-controls"><button type="button" disabled aria-label="Play recording">▶</button><span>0:00 / 0:03</span><button type="button" disabled aria-label="Volume">◖))</button><button type="button" disabled>1.0x</button></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="radio-console">
+        <div class="channel-banner">
+          <span class="radio-icon large">◉</span>
+          <div class="channel-title"><small>Channel</small><strong id="channel-name">VIRTUAL</strong></div>
+          <span class="standby-pill"><i></i> Standby</span>
+        </div>
+        <div class="radio-stats">
+          <div class="online-stat">● &nbsp;<span id="online-count">1 Online</span></div>
+          <div class="rx-stat"><i></i> RX</div>
+          <div class="tx-stat"><i></i> TX</div>
+        </div>
+        <div class="ptt-stage">
+          <div class="signal-ring ring-one"></div><div class="signal-ring ring-two"></div>
+          <button id="ptt-button" class="ptt-button" type="button" aria-label="Push to talk" title="Audio transport will be enabled after relay protocol verification">
+            <span class="satellite">✦</span><span class="ptt-letter">S</span>
+          </button>
+        </div>
+        <p id="ptt-message" class="ptt-message">Standby · Relay audio connection not configured</p>
+        <div class="bottom-controls">
+          <button id="settings-button" class="settings-button" type="button"><span class="gear">⚙</span> Settings</button>
+          <div class="mic-control"><span class="mic-symbol">♩</span><span>Mic <small id="mic-label">On</small></span><button id="mic-toggle" class="toggle on" type="button" aria-label="Toggle microphone"><i></i></button></div>
+        </div>
+        <section id="settings-panel" class="settings-panel hidden">
+          <div class="settings-heading"><strong>Audio output</strong><button id="close-settings" type="button" aria-label="Close settings">×</button></div>
+          <label for="audio-output">Speaker device</label>
+          <select id="audio-output"><option value="default">System default</option></select>
+          <p id="audio-output-note" class="muted">Choose where received radio audio should play.</p>
+        </section>
+      </section>
+      <p class="preview-notice" id="preview-notice">UI PREVIEW · Not connected to the relay · No audio is being transmitted</p>
+    </section>
   </main>
   <script src="./config.js"></script>
   <script src="./js/relay.js"></script>
