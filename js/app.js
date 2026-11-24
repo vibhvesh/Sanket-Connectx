@@ -1,78 +1,73 @@
 (() => {
   const $ = (id) => document.getElementById(id);
   let session = null;
-  let selectedChannel = null;
+  let preview = false;
+  let micEnabled = true;
+  let selectedSink = "default";
 
-  function showConsole() {
+  function showRadio(isPreview) {
+    preview = isPreview;
     $("login-view").classList.add("hidden");
-    $("console-view").classList.remove("hidden");
-    $("connection-state").classList.add("connected");
-    $("connection-state").innerHTML = "<i></i> SESSION ACTIVE";
+    $("radio-view").classList.remove("hidden");
+    $("preview-notice").classList.toggle("hidden", !isPreview);
+    $("account-name").textContent = session?.username || "apple";
   }
   function showLogin() {
-    $("console-view").classList.add("hidden");
+    $("radio-view").classList.add("hidden");
     $("login-view").classList.remove("hidden");
-    $("connection-state").classList.remove("connected");
-    $("connection-state").innerHTML = "<i></i> NOT CONNECTED";
   }
-  function renderChannels(channels) {
-    const list = $("channel-list");
-    list.replaceChildren();
-    if (!Array.isArray(channels) || channels.length === 0) {
-      list.innerHTML = '<p class="muted">No channels were returned for this account.</p>';
+  async function loadAudioOutputs() {
+    const select = $("audio-output");
+    if (!navigator.mediaDevices?.enumerateDevices) {
+      $("audio-output-note").textContent = "Audio device selection is not supported by this browser.";
       return;
     }
-    channels.forEach((channel) => {
-      const name = typeof channel === "string" ? channel : channel.name;
-      const kind = typeof channel === "string" ? "AVAILABLE" : (channel.type || (channel.public ? "PUBLIC" : "AUTHORIZED")).toUpperCase();
-      const button = document.createElement("button");
-      button.className = "channel-item";
-      button.innerHTML = '<span></span><span class="channel-tag"></span>';
-      button.children[0].textContent = name;
-      button.children[1].textContent = kind;
-      button.addEventListener("click", () => {
-        selectedChannel = channel;
-        $("selected-channel").textContent = name;
-        $("ptt-hint").textContent = "Channel selected. Audio transport will be enabled after relay protocol verification.";
-        $("ptt-button").disabled = true;
-        document.querySelectorAll(".channel-item").forEach((el) => el.classList.remove("selected"));
-        button.classList.add("selected");
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const outputs = devices.filter((device) => device.kind === "audiooutput");
+      select.replaceChildren(new Option("System default", "default"));
+      outputs.forEach((device, index) => {
+        const label = device.label || `Audio output ${index + 1}`;
+        select.add(new Option(label, device.deviceId));
       });
-      list.append(button);
-    });
+      select.value = selectedSink;
+      if (!outputs.length) $("audio-output-note").textContent = "No audio output devices were listed. System default will be used.";
+    } catch (_) {
+      $("audio-output-note").textContent = "Could not list audio output devices. System default will be used.";
+    }
   }
+  $("preview-button").addEventListener("click", () => showRadio(true));
   $("login-form").addEventListener("submit", async (event) => {
     event.preventDefault();
-    $("login-error").textContent = "";
-    const button = event.currentTarget.querySelector("button[type=submit]");
-    button.disabled = true;
-    button.textContent = "Connecting…";
-    try {
-      session = await window.SanketAuth.signIn($("username").value.trim(), $("password").value);
-      showConsole();
-      renderChannels(await window.SanketChannels.load(session));
-    } catch (error) {
-      $("login-error").textContent = error.message || "Unable to connect to relay.";
-      session = null;
-      showLogin();
-    } finally {
-      button.disabled = false;
-      button.textContent = "Connect to relay";
+    $("login-error").textContent = "Relay authentication is not connected yet. Use Preview to inspect the interface.";
+    // No credentials are stored or sent until the relay's real authentication API is verified.
+  });
+  $("leave-button").addEventListener("click", async () => {
+    if (!preview && session) {
+      try { await window.SanketAuth.signOut(session); } catch (_) {}
     }
-  });
-  $("refresh-channels").addEventListener("click", async () => {
-    try { renderChannels(await window.SanketChannels.load(session)); }
-    catch (error) { $("login-error").textContent = error.message; }
-  });
-  $("logout-button").addEventListener("click", async () => {
-    try { await window.SanketAuth.signOut(session); } catch (_) {}
     session = null;
-    selectedChannel = null;
-    window.SanketAudio.clear();
-    $("audio-history").innerHTML = '<p class="muted">No transmissions in this session.</p>';
-    $("selected-channel").textContent = "No channel selected";
-    $("ptt-button").disabled = true;
-    $("login-form").reset();
+    if (window.SanketAudio) window.SanketAudio.clear();
     showLogin();
+  });
+  $("ptt-button").addEventListener("click", () => {
+    $("ptt-message").textContent = "Preview only · PTT transport is not connected";
+  });
+  $("mic-toggle").addEventListener("click", () => {
+    micEnabled = !micEnabled;
+    $("mic-label").textContent = micEnabled ? "On" : "Off";
+    $("mic-toggle").classList.toggle("on", micEnabled);
+    $("ptt-message").textContent = micEnabled ? "Standby · Relay audio connection not configured" : "Microphone off";
+  });
+  $("settings-button").addEventListener("click", async () => {
+    $("settings-panel").classList.remove("hidden");
+    await loadAudioOutputs();
+  });
+  $("close-settings").addEventListener("click", () => $("settings-panel").classList.add("hidden"));
+  $("audio-output").addEventListener("change", async (event) => {
+    selectedSink = event.target.value;
+    $("audio-output-note").textContent = selectedSink === "default"
+      ? "System default audio output selected."
+      : "Output selected. It will be applied to relay playback when audio transport is connected.";
   });
 })();
