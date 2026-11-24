@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101820">
+  <title>Sanket PTT</title>
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">S</span><div><strong>SANKET PTT</strong><small>Browser radio client</small></div></div>
+      <span id="connection-state" class="status"><i></i> NOT CONNECTED</span>
+    </header>
+
+    <section id="login-view" class="panel login-panel">
+      <p class="eyebrow">SECURE RELAY ACCESS</p>
+      <h1>Sign in to your relay</h1>
+      <p class="muted">Use your relay account to view public and assigned channels.</p>
+      <form id="login-form">
+        <label for="username">Username</label>
+        <input id="username" name="username" autocomplete="username" required placeholder="name@example.com">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Password">
+        <button class="primary full" type="submit">Connect to relay</button>
+        <p id="login-error" class="error" role="alert"></p>
+      </form>
+    </section>
+
+    <section id="console-view" class="hidden">
+      <div class="welcome-row"><div><p class="eyebrow">RELAY CONSOLE</p><h1>Your channels</h1></div><button id="logout-button" class="secondary">Sign out</button></div>
+      <div class="console-grid">
+        <section class="panel">
+          <div class="section-heading"><h2>Available lines</h2><button id="refresh-channels" class="text-button">Refresh</button></div>
+          <div id="channel-list" class="channel-list"><p class="muted">Sign in to load channels.</p></div>
+        </section>
+        <section class="panel radio-panel">
+          <p class="eyebrow">SELECTED CHANNEL</p>
+          <h2 id="selected-channel">No channel selected</h2>
+          <p id="ptt-hint" class="muted">Choose a channel to continue.</p>
+          <button id="ptt-button" class="ptt-button" disabled><span>PTT</span><small>PRESS &amp; HOLD</small></button>
+          <p id="ptt-state" class="muted" aria-live="polite">Standby</p>
+        </section>
+        <section class="panel history-panel">
+          <div class="section-heading"><h2>Session audio</h2><span class="muted tiny">Cleared on sign out</span></div>
+          <div id="audio-history"><p class="muted">No transmissions in this session.</p></div>
+        </section>
+      </div>
+    </section>
+    <footer>Relay recordings remain on the relay. This browser keeps only temporary session playback.</footer>
+  </main>
+  <script src="./config.js"></script>
+  <script src="./js/relay.js"></script>
+  <script src="./js/auth.js"></script>
+  <script src="./js/channels.js"></script>
+  <script src="./js/audio.js"></script>
+  <script src="./js/ptt.js"></script>
+  <script src="./js/transcription.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>
