@@ -1,8 +1,4 @@
 window.SanketAuth = {
-  async signIn(username, password) {
-    return window.SanketRelay.login(username, password);
-  },
-  async signOut(session) {
-    await window.SanketRelay.logout(session);
-  }
+  signIn(email, password) { return window.SanketRelay.connect(email, password); },
+  signOut() { return window.SanketRelay.disconnect(); }
 };
